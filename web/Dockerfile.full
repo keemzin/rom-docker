@@ -1,9 +1,0 @@
-ARG BASE_IMAGE=johnsdoes/rom-web:base
-FROM ${BASE_IMAGE}
-
-# Bake web portal files (GM tools, registration, API gateway) directly into image
-COPY --chown=www-data:www-data web/wwwroot/ /www/wwwroot/
-
-WORKDIR /www/wwwroot
-EXPOSE 80 81 5556
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

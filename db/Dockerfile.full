@@ -1,7 +1,0 @@
-FROM mysql:5.7
-
-# Custom MySQL configuration for Ragnarok M
-COPY db/my.cnf /etc/mysql/conf.d/my.cnf
-
-# Seed SQL database dumps (auto-imported on first container launch)
-COPY db/init/ /docker-entrypoint-initdb.d/
