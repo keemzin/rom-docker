@@ -5,6 +5,9 @@ https://forum.ragezone.com/threads/ragnarok-m-english-patch-99-rom-mobile-korea-
 
 Special thanks to [SkyArc](https://forum.ragezone.com/members/skyarc.2000434324/).
 
+📦 **Download Server Files & APK:**  
+👉 [**huggingface.co/datasets/johnsdoes/docker-rom/tree/main**](https://huggingface.co/datasets/johnsdoes/docker-rom/tree/main)
+
 ---
 
 ## 🏛️ Stack Architecture
@@ -57,7 +60,7 @@ Special thanks to [SkyArc](https://forum.ragezone.com/members/skyarc.2000434324/
 ## 🚀 Quick Start
 
 ### 1. Download & Extract Assets
-Download the pre-configured asset archives from Hugging Face: [**`huggingface.co/datasets/johnsdoes/docker-rom`**](https://huggingface.co/datasets/johnsdoes/docker-rom):
+Download the pre-configured asset archives from Hugging Face: [**`huggingface.co/datasets/johnsdoes/docker-rom/tree/main`**](https://huggingface.co/datasets/johnsdoes/docker-rom/tree/main):
 - **`server.rar`** (or `server_code.tar.gz`) -> Extract into `./server/`
 - **`wwwroot.rar`** (or `web_wwwroot.tar.gz`) -> Extract into `./web/wwwroot/`
 - **`init.rar`** (or `db_init.tar.gz`) -> Extract into `./db/init/`
