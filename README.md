@@ -57,10 +57,11 @@ Official Docker Hub Registry: [hub.docker.com/r/johnsdoes](https://hub.docker.co
 ## 🚀 Quick Start
 
 ### 1. Download & Extract Assets
-Download the required server, web, and database asset archives (available in [`BACKUP/`](./BACKUP/) or cloud storage):
-- **`server_code.tar.gz`** -> Extract into `./server/`
-- **`web_wwwroot.tar.gz`** -> Extract into `./web/wwwroot/`
-- **`db_init.tar.gz`**     -> Extract into `./db/init/`
+Download the pre-configured asset archives from Hugging Face: [**`huggingface.co/datasets/johnsdoes/docker-rom`**](https://huggingface.co/datasets/johnsdoes/docker-rom):
+- **`server.rar`** (or `server_code.tar.gz`) -> Extract into `./server/`
+- **`wwwroot.rar`** (or `web_wwwroot.tar.gz`) -> Extract into `./web/wwwroot/`
+- **`init.rar`** (or `db_init.tar.gz`) -> Extract into `./db/init/`
+- **`rom.apk`** -> Install on Android or drag-and-drop into LDPlayer!
 
 ### 2. Start the Server Stack
 ```bash
@@ -128,16 +129,13 @@ docker push johnsdoes/rom-web:base
 
 ## 📁 Backup & Asset Distribution
 
-Large binary archives are preserved inside [`BACKUP/`](./BACKUP/):
-- **`BACKUP/server_code.tar.gz`**: 21 C++ binaries, maps, navmeshes, and Lua scripts.
-- **`BACKUP/web_wwwroot.tar.gz`**: Web portal, registration engine, and GM tools.
-- **`BACKUP/db_init.tar.gz`**: Seed database dumps (`ro_global`, `ro_xd_r2`).
+Pre-built archives and the patched APK are hosted on Hugging Face:  
+🔗 [**`huggingface.co/datasets/johnsdoes/docker-rom`**](https://huggingface.co/datasets/johnsdoes/docker-rom)
 
-To distribute via Hugging Face:
-```bash
-# Upload BACKUP/*.tar.gz to your Hugging Face dataset repo:
-huggingface-cli upload johnsdoes/rom-server-assets ./BACKUP/ .
-```
+- **`server.rar`** (1.33 GB): 21 C++ game server binaries, maps, navmeshes, and Lua scripts.
+- **`wwwroot.rar`** (156 MB): Web portal, registration engine, equipment catalog, and GM tools.
+- **`init.rar`** (10.8 MB): Seed database dumps (`ro_global`, `ro_xd_r2`).
+- **`rom.apk`** (1.54 GB): Pre-patched Android game client with the Quest Teleportation system baked in.
 
 ---
 
