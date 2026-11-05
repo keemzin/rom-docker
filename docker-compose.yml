@@ -71,6 +71,8 @@ services:
       - ./web/wwwroot:/www/wwwroot
       - ./web/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./web/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    environment:
+      - EQUIPMENT_SHOP_ENABLED=${EQUIPMENT_SHOP_ENABLED:-true}
     depends_on:
       db:
         condition: service_healthy
