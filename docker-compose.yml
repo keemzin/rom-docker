@@ -92,6 +92,7 @@ services:
     container_name: rom-game
     restart: unless-stopped
     stop_grace_period: 30s
+    entrypoint: ["/bin/bash", "-c", "tr -d '\\r' < /entrypoint.sh > /tmp/entrypoint.sh && chmod +x /tmp/entrypoint.sh && exec /tmp/entrypoint.sh"]
     ports:
       # Gateways (GateServer1-3)
       - "${GATEWAY_PORT_1:-7080}:7080"

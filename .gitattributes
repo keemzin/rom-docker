@@ -1,0 +1,30 @@
+# Auto-detect text files and normalize line endings
+* text=auto
+
+# Explicitly ensure Unix LF line endings for all shell scripts and configs.
+# This prevents Docker container failure ("exec /entrypoint.sh: no such file or directory")
+# when cloning the repository on Windows with core.autocrlf enabled.
+*.sh text eol=lf
+*.bash text eol=lf
+entrypoint.sh text eol=lf
+
+# Configs and database scripts
+*.sql text eol=lf
+*.conf text eol=lf
+*.ini text eol=lf
+*.json text eol=lf
+*.env* text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary files
+*.rar binary
+*.zip binary
+*.tar.gz binary
+*.so binary
+*.so.* binary
+*.apk binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

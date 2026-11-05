@@ -71,6 +71,9 @@ shutdown_servers() {
 
 trap shutdown_servers SIGTERM SIGINT
 
+# Ensure launcher script has LF line endings
+sed -i 's/\r$//' /RoServercode/bin/Release/go 2>/dev/null || true
+
 # 6. Launch Game Servers & Trade Server
 echo "[*] Launching 21 C++ Game Servers and PHP Trade Server daemon..."
 ./go xd r2 s1
