@@ -1,0 +1,50 @@
+# ==============================================================================
+# Git Ignore Configuration for Ragnarok M Docker Stack
+# ==============================================================================
+
+# Local Backups & Large Archives
+BACKUP/
+backup/
+client/
+*.apk
+*.bak
+*.old
+*.tar.gz
+*.zip
+*.tar
+*.7z
+*.rar
+temp_export/
+
+# Large Game Binaries & Data (6.6 GB - Extract from BACKUP/QuickJump/server.rar)
+server/*
+!server/.gitkeep
+
+# Large Web Root (516 MB - Extract from BACKUP/QuickJump/wwwroot.rar)
+web/wwwroot/*
+!web/wwwroot/.gitkeep
+
+# Large SQL Dumps (348 MB - Extract from BACKUP/QuickJump/init.rar)
+db/init/*
+!db/init/.gitkeep
+
+# Sensitive Environment Configurations
+.env
+!.env.example
+
+# Log Files & Runtime Caches
+*.log
+*.pid
+logs/
+
+# IDE & OS Metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*~

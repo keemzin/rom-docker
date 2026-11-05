@@ -1,0 +1,127 @@
+services:
+  # ============================================================================
+  # 1. MySQL Database (ro_global & ro_xd_r2)
+  # ============================================================================
+  db:
+    image: mysql:5.7
+    container_name: rom-mysql
+    restart: unless-stopped
+    command: [
+      "mysqld",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci",
+      "--sql_mode=",
+      "--max_allowed_packet=512M",
+      "--lower_case_table_names=1",
+      "--default-time-zone=+08:00",
+      "--innodb_buffer_pool_size=1G"
+    ]
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ro_global}
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p${MYSQL_ROOT_PASSWORD:-123456} || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - rom-net
+
+  # ============================================================================
+  # 2. Redis Cache
+  # ============================================================================
+  redis:
+    image: redis:6-alpine
+    container_name: rom-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - rom-net
+
+  # ============================================================================
+  # 3. Web & Registration Portal (Nginx + PHP 8.2)
+  # ============================================================================
+  web:
+    image: johnsdoes/rom-web:base
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: rom-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT_HTTP:-80}:80"
+      - "${WEB_PORT_PORTAL:-81}:81"
+      - "${WEB_PORT_API:-5556}:5556"
+    volumes:
+      - ./web/wwwroot:/www/wwwroot
+      - ./web/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./web/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rom-net
+
+  # ============================================================================
+  # 4. Ragnarok M Game Server Cluster & PHP Trade Server
+  # ============================================================================
+  game:
+    image: johnsdoes/rom-game:base
+    build:
+      context: ./game
+      dockerfile: Dockerfile
+    container_name: rom-game
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ports:
+      # Gateways (GateServer1-3)
+      - "${GATEWAY_PORT_1:-7080}:7080"
+      - "${GATEWAY_PORT_2:-7081}:7081"
+      - "${GATEWAY_PORT_3:-7082}:7082"
+      # SuperServer
+      - "${SUPER_SERVER_PORT:-7050}:7050"
+      # Exchange / Trade Server (TCP)
+      - "${TRADE_SERVER_PORT:-6091}:6091"
+      - "${TRADE_SERVER_PORT_ALT:-26091}:26091"
+      # Proxies
+      - "${PROXY_PORT_1:-12053}:12053"
+      - "${PROXY_PORT_2:-14288}:14288"
+    volumes:
+      - ./server:/RoServercode
+      - ./game/entrypoint.sh:/entrypoint.sh
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
+      - SERVER_IP=${SERVER_IP:-192.168.1.234}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rom-net
+
+networks:
+  rom-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  redis_data:
