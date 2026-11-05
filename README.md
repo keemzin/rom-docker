@@ -1,9 +1,9 @@
 # 🗡️ Ragnarok M: Eternal Love - Docker Server Stack
 
-A containerized, portable Docker environment for running the complete Ragnarok M: Eternal Love private server stack anywhere (Ubuntu, Debian, CentOS, AlmaLinux, Windows, or macOS with Docker Desktop).
+Containerized RO server from this subforum:  
+https://forum.ragezone.com/threads/ragnarok-m-english-patch-99-rom-mobile-korea-cn-2x-apk-vm-video-tutorial.1250510/
 
-Official Docker Hub Registry: [hub.docker.com/r/johnsdoes](https://hub.docker.com/r/johnsdoes)  
-🩺 **Architecture & Troubleshooting Guide for AI Agents & Developers:** [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md)
+Special thanks to [SkyArc](https://forum.ragezone.com/members/skyarc.2000434324/).
 
 ---
 
