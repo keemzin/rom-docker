@@ -117,18 +117,19 @@ With LDPlayer running:
 Added a dedicated **Equipment Shop** to the Laravel web portal on port 81 (`/equipment_shop`), allowing players to select and claim any equipment in the game for **FREE ($0)** with real-time in-game mail delivery.
 
 ### Features:
-1. **Catalog**: 3,141 equipment items categorized into:
-   - Weapons (Swords, Spears, Staves, Bows, Katars, Daggers, Axes, Maces, Knuckles, Books, Instruments, Whips)
-   - Off-hand & Shields
-   - Armors
-   - Garments
-   - Footgears
-   - Accessories (Rings, Necklaces, Brooches, Gloves)
-   - Headwear, Face, Mouth, Back & Tails
-   - Mounts & Costumes
-2. **Character Detection**: Queries `charbase` in `ro_xd_r2` for the logged-in user's characters and levels.
-3. **Instant Delivery**: Sends items via `http://127.0.0.1/user/gmquery.php` -> TCP socket to SceneServer port `7080` (pure in-game mail packet).
-4. **Offline Docker Fixes**:
+1. **Catalog**: 3,582 equipment items with full **English names & descriptions** (sourced from `BACKUP/Table_Item.txt` + `Table_ItemType.txt` + `Table_Equip.txt`), categorized into:
+   - Weapons (1,073: Swords, Spears, Staves, Bows, Katars, Daggers, Axes, Maces, Knuckles, Books, Instruments, Whips, Artifacts)
+   - Off-hand & Shields (255: Shields, Orbs, Statues, Bracers, Bangles)
+   - Armors (199)
+   - Garments (114)
+   - Footgears (111)
+   - Accessories (126: Rings, Necklaces, Brooches, Gloves)
+   - Headwear, Face, Mouth, Back & Tails (1,475: Headgears, Wings, Tails, Back items like Night Feather)
+   - Mounts & Costumes (229: Mounts, Costumes)
+2. **Smart Search & Aliases**: Supports searching by Name, ID, Category, Description, and community aliases (e.g. searching "moonlight feather" directly resolves to "Night Feather", and "chloe" finds both "Chloe Bow" and "Malang Snow Crab").
+3. **Character Detection**: Queries `charbase` in `ro_xd_r2` for the logged-in user's characters and levels.
+4. **Instant Delivery**: Sends items via `http://127.0.0.1/user/gmquery.php` -> TCP socket to SceneServer port `7080` (pure in-game mail packet).
+5. **Offline Docker Fixes**:
    - `web/wwwroot/127.0.0.1/user/config.php`: Dynamic DNS resolution to `db` (MySQL) and `game` (SceneServer GM socket).
    - `web/wwwroot/game/.env`: Pointed `URL_SEND_ITEM_API` to `http://127.0.0.1`.
 
