@@ -6,9 +6,10 @@ This feature adds an intelligent one-click teleportation option to the quest nav
 - **Confirmation Dialog**: Displays a prompt (*"Quest Teleport"*) offering two choices:
   - **Teleport**: Instantly moves the character with **0 loading screens**.
   - **Walk**: Cancels teleport and executes the game's default auto-walk and tracking direction marker.
-- **Behavior by Map Location**:
-  - **Same Map**: Blinks the player directly to the quest objective / NPC position (using `ServiceGMProxy:Call("gocity ...")`). Upon arrival, it automatically triggers NPC conversation / interaction. If the player is already within 6 meters, the dialog is skipped and talks to the NPC immediately.
-  - **Different Map**: Queries the pathfinder system (`WorldTeleport` and `MapInnerTeleport.outter`) to calculate the exact exit portal on the *current* map leading toward the destination. Blinks the player right in front of the gate with **0 loading screens**, allowing the player to step into the portal naturally.
+- **Behavior by Map Location & Target Priority**:
+  - **Local NPC Priority**: Prioritizes detecting if the target NPC/monster is already in the player's current scene (via `NSceneNpcProxy` or `Game.MapManager:GetNPCPointMap()`). Even if `questData.map` indicates a subsequent destination map (common for cross-map or travel quests), talking to a gatekeeper or NPC standing beside the gate will blink directly to the NPC with **0 loading screens** instead of warping to the gate.
+  - **Same Map Coordinate**: If the objective is on the same map, blinks directly to the target coordinate and automatically executes the quest conversation/action. If already within 6 meters, skips dialog and speaks directly.
+  - **Different Map Gate Pathfinder**: If and only if the NPC/objective does not exist on the current map, calculates the shortest path exit portal on the current map leading toward the destination and blinks the player in front of the gate.
 
 ---
 
