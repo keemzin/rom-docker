@@ -131,4 +131,6 @@ Added a dedicated **Equipment Shop** to the Laravel web portal on port 81 (`/equ
 4. **Offline Docker Fixes**:
    - `web/wwwroot/127.0.0.1/user/config.php`: Dynamic DNS resolution to `db` (MySQL) and `game` (SceneServer GM socket).
    - `web/wwwroot/game/.env`: Pointed `URL_SEND_ITEM_API` to `http://127.0.0.1`.
-   - `web/php.ini`: Enabled OPCache revalidation for dynamic Blade rendering across Docker volume mounts.
+   - `web/php.ini`: Optimized OPCache (`revalidate_freq = 60`, `enable_file_override = 1`, `realpath_cache_size = 16M`, `realpath_cache_ttl = 600`) to eliminate stat penalties across Windows Docker volume mounts.
+   - `web/wwwroot/game/routes/web.php`: Resolved duplicate `login` and `logout` route names, enabling full `route:cache`, `config:cache`, and `view:cache`.
+   - Page response times reduced from ~16 seconds to ~80-100 milliseconds.
