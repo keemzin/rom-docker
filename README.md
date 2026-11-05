@@ -88,6 +88,36 @@ docker exec -it rom-game bash -c "cd /RoServercode/bin/Release && ./restart s1"
 
 ---
 
+## 🛍️ Equipment Shop Configuration (Port 81)
+
+The web portal on port 81 includes an **Equipment Shop** allowing players to browse 3,580+ items and claim gear for free directly to their in-game mailbox.
+
+### Enable / Disable Store
+
+#### Method 1: Via `.env` (Standard)
+In `web/wwwroot/game/.env`:
+```env
+EQUIPMENT_SHOP_ENABLED=true   # Store is active (default)
+# or
+EQUIPMENT_SHOP_ENABLED=false  # Store is disabled
+```
+
+* **When `false`**:
+  * The "Equipment Shop" and "Free Equipment" links automatically disappear from the navigation bar.
+  * Direct access to `/equipment_shop` or any claim attempts will safely redirect back with:  
+    `"The Equipment Shop is currently closed for maintenance."`
+* **After editing `.env`**, refresh the configuration cache:
+  ```powershell
+  docker exec rom-web php /www/wwwroot/game/artisan config:cache
+  ```
+
+#### Method 2: Instant File Flag (0-Second Toggle)
+To toggle the store instantly without editing files or running commands:
+* **To Disable**: Create an empty file at `web/wwwroot/game/storage/equipment_shop_disabled`
+* **To Re-Enable**: Delete `web/wwwroot/game/storage/equipment_shop_disabled`
+
+---
+
 ## 🛠️ Building & Pushing to Docker Hub (`johnsdoes`)
 
 ### 1. Build Base Images (Developer Runtime)
