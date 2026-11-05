@@ -43,33 +43,14 @@ Official Docker Hub Registry: [hub.docker.com/r/johnsdoes](https://hub.docker.co
 
 ---
 
-## ✨ Custom Features & Enhancements
+## ✨ Custom Features Overview
 
-This stack includes several custom gameplay and infrastructure enhancements designed to make playing, testing, and managing Ragnarok M seamless:
+* **⚡ Quick Quest Teleport**: Click any active quest in the HUD or Quest Manual to instantly blink to the objective with **0 loading screens** (includes smart cross-map pathfinding and local NPC priority).
+* **🛍️ Free Equipment Shop (Port 81)**: Web portal store at `/equipment_shop` allowing players to browse and claim **3,580+ items for free ($0)** delivered straight to their in-game mailbox in real-time. Includes instant live search and translation aliases.
+* **🚀 Fast 70ms Web Portal**: Optimized PHP OPCache and Laravel route/config caching for instant, snappy page loads.
+* **🔌 Docker Networking & Resilience**: Pre-configured internal bridges and friendly offline status handling.
 
-### 1. ⚡ Intelligent Quick Quest Teleport ("Option A")
-* **One-Click Teleport Confirmation**: Clicking on any active quest tracker in the HUD or the "Go" button in the Quest Manual opens a prompt giving the player a choice between **"Teleport"** and **"Walk"**.
-* **Zero Loading Screen Delay**: Teleportation instantly blinks your character to the exact coordinates with 0 loading screens.
-* **Local NPC Priority**: Automatically detects if the target NPC or monster already exists on your current map (e.g. talking to a gatekeeper or guard beside a portal) and blinks directly beside them rather than warping to the portal.
-* **Cross-Map Smart Gate Pathfinder**: When a destination is in another map zone, the engine calculates the shortest path exit portal on the current map and blinks the character directly in front of the gate.
-* **Automatic Server-Side GM Whitelisting**: `CommonConfig.lua` is pre-configured to automatically grant in-game teleportation privileges to all accounts (IDs 100,000–200,000) on boot without requiring C++ compilation.
-* **Pre-Patched Client**: Baked directly into `client/rom.apk` and hot-patchable to LDPlayer via `client/patch/`.
-
-### 2. 🛍️ Free Equipment Shop (Web Portal Port 81)
-* **3,580+ English Translated Catalog**: Sourced and clean-translated from `Table_Item.txt` covering Weapons, Off-hand, Armors, Garments, Footgears, Accessories, Headwears, Wings/Backs (e.g. `Night Feather`), and Mounts/Costumes.
-* **Instant In-Game Delivery**: Uses the local GM socket bridge to deliver claimed items straight to the player's in-game mailbox in real-time for **$0 (Free)**.
-* **Smart Search & Community Translation Aliases**: Search by Name, ID, Category, Description, or alternative translations (e.g. searching `"moonlight feather"` finds `Night Feather`, searching `"chloe"` finds `Chloe Bow` and `Malang Snow Crab`).
-* **Multi-Character Detection**: Automatically queries all characters and levels belonging to the logged-in user account.
-* **Store On/Off Toggles**: Easy toggle via `.env` (`EQUIPMENT_SHOP_ENABLED=true/false`) or an instant 0-second file flag in `storage/`.
-
-### 3. 🚀 High-Performance Web Engine (70ms Latency)
-* **PHP 8.2 OPCache Optimization**: Tuned opcode validation and realpath caching (`revalidate_freq = 60`, `enable_file_override = 1`, `realpath_cache_size = 16M`) to completely eliminate the Windows NTFS/WSL2 stat penalty.
-* **Laravel Route & View Serialization**: Resolved route naming collisions to enable `config:cache`, `route:cache`, and `view:cache`.
-* **200x Speedup**: Web portal page latency dropped from **~16,000ms down to ~70–100ms**.
-
-### 4. 🔌 Offline-Resilient Docker GM Bridge
-* **Dynamic Container DNS Resolution**: Dynamic DNS resolution for MySQL and SceneServer GM socket (`game:7080`).
-* **Friendly Offline Error Handling**: If the game server cluster is offline, the web portal gracefully intercepts connection errors and alerts the user instead of displaying raw socket exceptions.
+*(For technical implementation details and patch history, see [`CHANGES.md`](./CHANGES.md).)*
 
 ---
 
