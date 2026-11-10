@@ -10,6 +10,7 @@ client/
 *.bak
 *.old
 *.tar.gz
+!game/libs/usr_local_lib.tar.gz
 *.zip
 *.tar
 *.7z
