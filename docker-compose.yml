@@ -112,7 +112,7 @@ services:
     environment:
       - DB_HOST=db
       - REDIS_HOST=redis
-      - SERVER_IP=${SERVER_IP:-192.168.1.234}
+      - SERVER_IP=${SERVER_IP:-127.0.0.1}
     depends_on:
       db:
         condition: service_healthy

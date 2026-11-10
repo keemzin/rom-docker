@@ -25,6 +25,22 @@ while ! timeout 1 bash -c "cat < /dev/null > /dev/tcp/${DB_HOST}/3306" 2>/dev/nu
 done
 echo "[+] MySQL is reachable!"
 
+# 2.5 Sync SERVER_IP into ro_global database
+SERVER_IP=${SERVER_IP:-127.0.0.1}
+echo "[*] Synchronizing server IP (${SERVER_IP}) into database..."
+php -r "
+try {
+    \$pdo = new PDO('mysql:host=${DB_HOST};port=3306;dbname=ro_global', 'root', '123456', [PDO::ATTR_TIMEOUT => 5]);
+    \$stmt1 = \$pdo->prepare('UPDATE machine SET host=?, ip=? WHERE id=1');
+    \$stmt1->execute(['${SERVER_IP}', '${SERVER_IP}']);
+    \$stmt2 = \$pdo->prepare('UPDATE proxy SET ip=?');
+    \$stmt2->execute(['${SERVER_IP}']);
+    echo '[+] Database ro_global machine and proxy updated to ' . '${SERVER_IP}' . PHP_EOL;
+} catch (Exception \$e) {
+    echo '[!] Warning: Failed to sync SERVER_IP to database: ' . \$e->getMessage() . PHP_EOL;
+}
+" || true
+
 # 3. Wait for Redis to be ready
 echo "[*] Waiting for Redis (${REDIS_HOST}:6379) to be healthy..."
 while ! timeout 1 bash -c "cat < /dev/null > /dev/tcp/${REDIS_HOST}/6379" 2>/dev/null; do

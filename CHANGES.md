@@ -170,3 +170,68 @@ Diagnosed and eliminated severe latency on the Port 81 Laravel web portal where 
 | **`/packages`** | ~12,800 ms (12.8s) | **82 ms** (0.08s) | **~156x faster** |
 | **`/topup`** | ~13,200 ms (13.2s) | **83 ms** (0.08s) | **~159x faster** |
 | **`/home`** | ~15,000 ms (15.0s) | **101 ms** (0.10s) | **~148x faster** |
+
+---
+
+## 9. In-Game Big Cat Store: 2026 Fix & Free Mock Purchasing
+
+### Root Causes Fixed:
+1. **2026 Month Card Lookup Crash**:
+   - `UIViewControllerZenyShop:GetMonthCardConfigure()` and `UISubViewControllerMonthlyVIP:GetMonthCardConfigure()` originally required an exact `v.Year == year and v.Month == month` match in `Table_MonthCard`. When the server year reached 2026, `GetMonthCardConfigure()` returned `nil`, crashing `LoadView()` when indexing `monthCardConfigure.NpcPicture`.
+2. **Client Script Compatibility (`quick_jump_rom.apk`)**:
+   - In `quick_jump_rom.apk`, `ApplicationInfo.IsIphoneX()` is commented out in `com.unity3d`. Preserved the native commented-out `UIViewControllerZenyShop:BGAdapt()` so `Init()` never attempts to call `ApplicationInfo.IsIphoneX()`.
+3. **Offline Payment Gateway Hang**:
+   - Clicking "Purchase" on Big Cat Coins, Zeny, Monthly VIP, EP Cards, or Lucky Bags originally invoked `FunctionXDSDK.Ins:Pay(...)` / `FunctionSDK`, locking the UI waiting for a third-party callback.
+
+### Client Bundle Modifications (`patch.zip` & `quick_jump_rom.apk`):
+- **`Android/resources/script2/framework.unity3d`** (`assets/assets32.zip`):
+  - **`UIViewControllerZenyShop`**: Added fallback logic in `GetMonthCardConfigure()` (`Year + Month` -> `Month` -> any valid entry) and `nil`-guard before `PictureManager.Instance:SetZenyShopNPC`.
+  - **`UISubViewControllerMonthlyVIP`**: Added `GetMonthCardConfigure()` fallback, `nil`-guard before `SetMonthCardUI`, and replaced `OnClickForButtonPurchaseCard` / `Purchase` with dynamic `ServiceGMProxy` free activation (`additem` + `usedepositcard`).
+  - **`UIListItemViewControllerZenyShopItem`**: Replaced `OnClickForButtonPurchase` / `Purchase` with dynamic `ServiceGMProxy` free purchasing:
+    - **Monthly VIP (`Type == 2`)**: Grants and activates the current month card (`additem` + `usedepositcard`).
+    - **EP Cards (`Type == 5`)**: Grants the EP card item (`additem`) and activates it (`usedepositcard`).
+    - **Big Cat Coins (`Type == 3` / `ItemId == 151`)**: Grants BCC currency (`addmoney type=154`) and item `151`.
+    - **Zeny (`Type == 1` / `ItemId == 100`)**: Grants Zeny (`addmoney type=131`).
+    - **Other Deposit Items**: Dynamically spawns `conf.ItemId` (`additem`), shows an instant floating message (`MsgManager.FloatMsgTableParam`), unlocks the purchase switch, and refreshes the currency balance bar.
+  - **`UIListItemCtrlLuckyBag`**: Updated Deposit Lucky Bags / Gift Boxes (`Type == 4`) in the B Coin tab to grant items for free via `ServiceGMProxy`.
+- **`Android/resources/script2/config_pay_zhifu.unity3d`** (`assets/assets29.zip`):
+  - **`Table_MonthCard`**: Updated entries `800201`–`800212` to `Year = 2026`.
+- **`Android/resources/script2/config_item_daoju.unity3d`** (`assets/assets10.zip`):
+  - **`Table_UseItem`**: Preserved all 1,827 native entries (including custom items `901604`–`90500`) and removed `AlertMode = 1` on items `4500`, `12354`, and `12355`.
+
+---
+
+## 10. Automatic OTA Client Hot-Patching (`patch.zip` / Multi-Patch Queue)
+
+### Overview:
+Configured the web container (`rom-web`) to deliver over-the-air (OTA) AssetBundle hot-patches directly to the Android client on startup, supporting **both multiple incremental patches (`patch.zip`, `patch2.zip`, `patch3.zip`...) and in-place overwrites**, with automatic version bumping and MD5/size detection.
+
+### Files Configured:
+- **`web/wwwroot/127.0.0.1/res/*.zip`**: Any `.zip` file placed in `res/` (starting with `patch.zip` at version `229110`) is automatically tracked.
+- **`web/wwwroot/127.0.0.1/version.php`** & **`web/wwwroot/game/public/game/Version.php`**:
+  - Dynamically resolves the server host IP from `$_SERVER['HTTP_HOST']` (`http://<HOST>/res/<filename>.zip`).
+  - Scans all `*.zip` files in `/www/wwwroot/127.0.0.1/res/`, checks `filesize()`, `filemtime()`, and `md5_file()`, and caches per-file version metadata in `/www/wwwroot/127.0.0.1/res/patch.meta.json`.
+  - **Incremental Multi-Patch Support**: If you leave `patch.zip` (`229110`) in `res/` and add `patch2.zip`, `patch2.zip` is automatically assigned version `229111`. Existing players at `229110` only download `patch2.zip`, while new players download `patch.zip` then `patch2.zip` in order (`1/2`, `2/2`).
+  - **Overwrite Support**: If you overwrite `patch.zip` in-place with a new file (different MD5), its version automatically increments so all players download the updated file.
+- **`web/nginx/conf.d/gateway.conf`**: Added `/version` -> `/version.php` rewrite rule on port 80.
+
+---
+
+## 11. Premium (Monthly VIP) MVP & MINI Map / Minimap / Auto-Battle Visibility Hotfix (`patch1.zip`)
+
+### Root Causes Fixed:
+1. **Minimap, BigMap & Auto-Battle Filtered Out MVP/MINI Without Adventure Skills**:
+   - `MainViewMiniMap:UpdateNearlyMonsters()` and `FunctionMonster:FilterMonster()` / `FunctionMonster:FilterMonsterStaticInfo()` previously checked only `SkillProxy.Instance:HasLearnedSkill(50051001)` (*Wolf's Eye*, Adventure Class C) and `SkillProxy.Instance:HasLearnedSkill(50050001)` (*Falcon Perception*, Adventure Class E), ignoring `UIModelMonthlyVIP.Instance():AmIMonthlyVIP()`.
+   - Players who activated Premium without learning those two Adventure Skills had `hasLearnMvp = false` and `hasLearnMini = false`, hiding `map_mvpboss` and `map_miniboss` icons on the Minimap/BigMap and excluding MVPs/MINIs from the Auto-Battle target list.
+2. **MVP Board (`BossView`) MINI Toggle & Refresh**:
+   - `BossView:Init()` called `QueryMVPBoss()` before `OnEnter()` set `showMiniTog.value`, and `OnEnter()` did not force-enable the MINI toggle or refresh the list when Premium was active.
+
+### Hotfix Changes (`web/wwwroot/127.0.0.1/res/patch1.zip` -> Version `229111` & `quick_jump_rom.apk`):
+- **`Android/resources/script2/framework.unity3d`**:
+  - **`MainViewMiniMap`**: Updated `UpdateNearlyMonsters()` to pass `isMvpFight or amIMonthlyVIP` into `FunctionMonster.Me():FilterMonster(...)`, and updated `HandleShowNpcPos()` to support `Table_Monster` (`MVP` -> `map_mvpboss`, `MINI` -> `map_miniboss`) icons.
+  - **`BossView`**: Updated `OnEnter()` so when `AmIMonthlyVIP()` is active, `showMiniTog.value` is automatically enabled, `QueryMVPBoss()` is requested, and `UpdateBossList()` refreshes immediately.
+  - **`UISubViewControllerMonthlyVIP`**, **`UIListItemViewControllerZenyShopItem`**, & **`ServiceUserEventProxy`**: Automatically grants Adventure Skills `50050001` (MINI detection) and `50051001` (MVP detection) and sets client-side Monthly VIP expiration & `BossView_ShowMini = true` immediately upon activating Premium.
+- **`Android/resources/script2/functionsystem.unity3d`**:
+  - **`FunctionMonster`**: Updated `FilterMonster()` and `FilterMonsterStaticInfo()` to treat `UIModelMonthlyVIP.Instance():AmIMonthlyVIP()` as having learned both MVP and MINI detection skills, unlocking MVP/MINI icons on the map and in the Auto-Battle target list during Premium.
+
+

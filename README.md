@@ -49,6 +49,8 @@ Special thanks to [SkyArc](https://forum.ragezone.com/members/skyarc.2000434324/
 ## ✨ Custom Features Overview
 
 * **⚡ Quick Quest Teleport**: Click any active quest in the HUD or Quest Manual to instantly blink to the objective with **0 loading screens** (includes smart cross-map pathfinding and local NPC priority).
+* **🐱 Free In-Game Big Cat Store**: Fixed for 2026+ and patched for instant, free ($0) in-game purchasing — click any Big Cat Coin pack, Zeny pack, Monthly VIP card, EP card, or Lucky Bag to receive it immediately in real-time without third-party payment SDKs.
+* **🔄 Automatic OTA Client Hot-Patching (`patch.zip`)**: Drop any updated `patch.zip` into `web/wwwroot/127.0.0.1/res/patch.zip` and the web server automatically calculates the new MD5/size, bumps the patch version, and pushes the update to players on their next game launch (no APK reinstall required).
 * **🛍️ Free Equipment Shop (Port 81)**: Web portal store at `/equipment_shop` allowing players to browse and claim **3,580+ items for free ($0)** delivered straight to their in-game mailbox in real-time. Includes instant live search and translation aliases.
 * **🚀 Fast 70ms Web Portal**: Optimized PHP OPCache and Laravel route/config caching for instant, snappy page loads.
 * **🔌 Docker Networking & Resilience**: Pre-configured internal bridges and friendly offline status handling.
@@ -113,6 +115,21 @@ EQUIPMENT_SHOP_ENABLED=false  # Store is disabled
 To toggle the store instantly without editing files or running commands:
 * **To Disable**: Create an empty file at `web/wwwroot/game/storage/equipment_shop_disabled`
 * **To Re-Enable**: Delete `web/wwwroot/game/storage/equipment_shop_disabled`
+
+---
+
+## 🔄 Applying Client Hot-Patch Updates (`patch.zip` / `patch2.zip` ...)
+
+You do **not** need to reinstall the APK or restart Docker to push client script/config updates:
+1. Drop your patch archive(s) into:
+   ```text
+   web/wwwroot/127.0.0.1/res/
+   ```
+   - **Option A (Multiple Incremental Patches):** Leave `patch.zip` (`229110`) in place and drop new patch zips beside it (e.g., `patch2.zip`, `patch3.zip`).
+     - Players who already downloaded `patch.zip` will **only** download the new `patch2.zip`.
+     - Brand-new players will automatically download `patch.zip` and `patch2.zip` in chronological order (`1/2`, `2/2`).
+   - **Option B (Single Cumulative Patch):** Overwrite `patch.zip` directly.
+2. `version.php` and `Version.php` automatically scan all `*.zip` files in `res/`, calculate their MD5 and byte size, increment version numbers in `patch.meta.json`, and serve any new patches to the Android client on its next startup.
 
 ---
 
