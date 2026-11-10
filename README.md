@@ -173,6 +173,59 @@ Pre-built archives and the patched APK are hosted on Hugging Face:
 
 ---
 
+## 💾 Database Backup & Restore
+
+The MySQL container (`rom-mysql`, default root password `123456`) uses two databases:
+- **`ro_global`**: Accounts, server list, and global state
+- **`ro_xd_r2`**: Characters, inventory, guilds, and Exchange/Trade data
+
+> **Note for Windows PowerShell:** Character and inventory data are stored as binary Protobuf `BLOB`s (`charbase`, `accbase`, etc.). Always use `--hex-blob` and `-r /tmp/...` with `docker cp` instead of PowerShell `>` redirection (which re-encodes output as UTF-16 and corrupts binary blobs).
+
+### 1. Backup Database
+
+**Option A: Full Backup (`ro_global` + `ro_xd_r2`) into a Single File**
+```powershell
+# Dump both databases safely inside the container
+docker exec rom-mysql mysqldump -uroot -p123456 --hex-blob --single-transaction --routines --triggers --databases ro_global ro_xd_r2 -r /tmp/rom_backup.sql
+
+# Copy the backup file to your host machine
+docker cp rom-mysql:/tmp/rom_backup.sql ./rom_backup.sql
+```
+
+**Option B: Separate Backups into `db/init/` (Same Structure as `init.rar`)**
+```powershell
+docker exec rom-mysql mysqldump -uroot -p123456 --hex-blob --single-transaction --databases ro_global -r /tmp/01_ro_global.sql
+docker exec rom-mysql mysqldump -uroot -p123456 --hex-blob --single-transaction --databases ro_xd_r2 -r /tmp/02_ro_xd_r2.sql
+
+docker cp rom-mysql:/tmp/01_ro_global.sql ./db/init/01_ro_global.sql
+docker cp rom-mysql:/tmp/02_ro_xd_r2.sql ./db/init/02_ro_xd_r2.sql
+```
+
+### 2. Restore Database
+
+**Restore from `rom_backup.sql`:**
+```powershell
+# 1. Stop game server so it does not write while restoring
+docker stop rom-game
+
+# 2. Copy the SQL file into the container and import
+docker cp ./rom_backup.sql rom-mysql:/tmp/rom_backup.sql
+docker exec rom-mysql sh -c "mysql -uroot -p123456 < /tmp/rom_backup.sql"
+
+# 3. Start game server again
+docker start rom-game
+```
+
+**Restore from `db/init/01_ro_global.sql` & `db/init/02_ro_xd_r2.sql`:**
+```powershell
+docker stop rom-game
+docker exec rom-mysql sh -c "mysql -uroot -p123456 ro_global < /docker-entrypoint-initdb.d/01_ro_global.sql"
+docker exec rom-mysql sh -c "mysql -uroot -p123456 ro_xd_r2 < /docker-entrypoint-initdb.d/02_ro_xd_r2.sql"
+docker start rom-game
+```
+
+---
+
 ## 🛡️ Firewall & Port Forwarding
 
 If hosting for players over LAN or VPS, forward these ports:
